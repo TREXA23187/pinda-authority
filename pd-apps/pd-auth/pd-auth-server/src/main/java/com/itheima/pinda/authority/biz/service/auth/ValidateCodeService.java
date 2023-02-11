@@ -5,4 +5,5 @@ import java.io.IOException;
 
 public interface ValidateCodeService {
     public void create(String key, HttpServletResponse response) throws IOException;
+    public boolean check(String key, String code);
 }
