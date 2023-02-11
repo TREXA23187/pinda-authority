@@ -1,9 +1,14 @@
 # @xxx@ 从pom.xml中取值, 所以 @xx@ 标注的值，都不能从nacos中获取
+#pinda:
+#  nacos:
+#    ip: ${NACOS_IP:@pom.nacos.ip@}
+#    port: ${NACOS_PORT:@pom.nacos.port@}
+#    namespace: ${NACOS_ID:@pom.nacos.namespace@}
 pinda:
   nacos:
-    ip: ${NACOS_IP:@pom.nacos.ip@}
-    port: ${NACOS_PORT:@pom.nacos.port@}
-    namespace: ${NACOS_ID:@pom.nacos.namespace@}
+    ip: 127.0.0.1
+    port: 8848
+    namespace: afa95834-976d-4a64-815a-eddd577b7156
 
 spring:
   main:
