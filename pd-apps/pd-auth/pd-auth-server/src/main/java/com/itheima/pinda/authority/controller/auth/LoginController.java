@@ -9,6 +9,7 @@ import com.itheima.pinda.authority.dto.auth.LoginDTO;
 import com.itheima.pinda.authority.dto.auth.LoginParamDTO;
 import com.itheima.pinda.base.BaseController;
 import com.itheima.pinda.base.R;
+import com.itheima.pinda.log.annotation.SysLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ public class LoginController extends BaseController {
     // 生成验证码
     @GetMapping(value = "/captcha", produces = "image/png")
     @ApiOperation(notes = "CAPTCHA", value = "CAPTCHA")
+    @SysLog("generate captcha")
     public void captcha(@RequestParam(value = "key") String key, HttpServletResponse response) throws IOException {
         validateCodeService.create(key, response);
     }
@@ -39,6 +41,7 @@ public class LoginController extends BaseController {
     // 登录认证
     @PostMapping("/login")
     @ApiOperation(notes = "login", value = "login")
+    @SysLog("login")
     public R<LoginDTO> login(@Validated @RequestBody LoginParamDTO loginParamDTO) {
         // 校验验证码
         boolean check = validateCodeService.check(loginParamDTO.getKey(), loginParamDTO.getCode());
