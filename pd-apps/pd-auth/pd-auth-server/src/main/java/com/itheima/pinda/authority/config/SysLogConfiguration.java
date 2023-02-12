@@ -2,7 +2,7 @@ package com.itheima.pinda.authority.config;
 
 // 系统操作日志配置类
 
-import com.itheima.pinda.authority.biz.service.auth.OptLogService;
+import com.itheima.pinda.authority.biz.service.common.OptLogService;
 import com.itheima.pinda.log.entity.OptLogDTO;
 import com.itheima.pinda.log.event.SysLogListener;
 import org.springframework.context.annotation.Configuration;
