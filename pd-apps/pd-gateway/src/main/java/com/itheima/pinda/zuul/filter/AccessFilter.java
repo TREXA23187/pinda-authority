@@ -77,7 +77,7 @@ public class AccessFilter extends BaseFilter {
         }
 
         long count = list.stream().filter((resource) -> {
-            return resource.startsWith(permission);
+            return permission.startsWith(resource);
         }).count();
 
         if (count == 0) {
@@ -88,7 +88,7 @@ public class AccessFilter extends BaseFilter {
         String userId = RequestContext.getCurrentContext().getZuulRequestHeaders().get(BaseContextConstants.JWT_KEY_USER_ID);
         List<String> visibleResource = (List<String>) cacheChannel.get(CacheKey.USER_RESOURCE, userId).getValue();
         if (visibleResource == null) {
-            ResourceQueryDTO resourceQueryDTO = ResourceQueryDTO.builder().userId(new Long(userId)).build();
+            ResourceQueryDTO resourceQueryDTO = ResourceQueryDTO.builder().userId(Long.parseLong(userId)).build();
             List<Resource> resourceList = resourceApi.visible(resourceQueryDTO).getData();
 
             if (resourceList != null && resourceList.size() > 0) {
@@ -101,7 +101,7 @@ public class AccessFilter extends BaseFilter {
         }
 
         count = visibleResource.stream().filter((resource) -> {
-            return resource.startsWith(permission);
+            return permission.startsWith(resource);
         }).count();
 
         if (count > 0) {
