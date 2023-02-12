@@ -6,16 +6,24 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.itheima.pinda.auth.server.utils.JwtTokenServerUtils;
 import com.itheima.pinda.auth.utils.JwtUserInfo;
 import com.itheima.pinda.auth.utils.Token;
+import com.itheima.pinda.authority.biz.service.auth.ResourceService;
 import com.itheima.pinda.authority.biz.service.auth.UserService;
 import com.itheima.pinda.authority.dto.auth.LoginDTO;
+import com.itheima.pinda.authority.dto.auth.ResourceQueryDTO;
 import com.itheima.pinda.authority.dto.auth.UserDTO;
+import com.itheima.pinda.authority.entity.auth.Resource;
 import com.itheima.pinda.authority.entity.auth.User;
 import com.itheima.pinda.base.R;
+import com.itheima.pinda.common.constant.CacheKey;
 import com.itheima.pinda.dozer.DozerUtils;
 import com.itheima.pinda.exception.code.ExceptionCode;
+import net.oschina.j2cache.CacheChannel;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthManager {
@@ -29,6 +37,12 @@ public class AuthManager {
     @Autowired
     private JwtTokenServerUtils jwtTokenServerUtils;
 
+    @Autowired
+    private ResourceService resourceService;
+
+    @Autowired
+    private CacheChannel cacheChannel;
+
     public R<LoginDTO> login(String account, String password) {
         R<User> userR = check(account, password);
         Boolean isError = userR.getIsError();
@@ -39,10 +53,28 @@ public class AuthManager {
         User user = userR.getData();
         Token token = generateUserToken(user);
 
+        // 查询用户可以访问的资源权限
+        List<Resource> userResource = resourceService.findVisibleResource(ResourceQueryDTO.builder().userId(user.getId()).build());
+        List<String> permissionList = null;
+        if (userResource != null && userResource.size() > 0) {
+            // 用户对应的权限（前端用的）
+            permissionList = userResource.stream().map(Resource::getCode).collect(Collectors.toList());
 
-        // 缓存用户权限
+            // 将用户对应的权限（后端网关用的）缓存
+            List<String> visibleResource = userResource.stream().map((resource -> {
+                return resource.getMethod() + resource.getUrl();
+            })).collect(Collectors.toList());
+            cacheChannel.set(CacheKey.USER_RESOURCE, user.getId().toString(), visibleResource);
 
-        LoginDTO loginDTO = LoginDTO.builder().user(dozerUtils.map(userR.getData(), UserDTO.class)).token(token).build();
+        }
+
+
+        LoginDTO loginDTO = LoginDTO.builder().
+                user(dozerUtils.map(userR.getData(), UserDTO.class)).
+                token(token).
+                permissionsList(permissionList).
+                build();
+
         return R.success(loginDTO);
     }
 
