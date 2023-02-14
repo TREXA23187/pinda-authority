@@ -18,6 +18,7 @@
     <modules>
         <module>pd-auth</module>
         <module>pd-gateway</module>
+        <module>pd-goods</module>
         <!--<module>pd-file</module>-->
     </modules>
     <dependencyManagement>
