@@ -35,4 +35,4 @@ public class GoodsServerApplication {
                 env.getProperty("server.port"));
 
     }
-}
+} 
